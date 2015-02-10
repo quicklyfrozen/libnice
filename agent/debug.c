@@ -37,6 +37,8 @@
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
+#include <stdlib.h>
+#include <stdio.h>
 
 #include <string.h>
 
@@ -126,10 +128,14 @@ void nice_debug_disable (gboolean with_stun)
 #ifndef NDEBUG
 void nice_debug (const char *fmt, ...)
 {
+  char fmta[4096];
+  snprintf(fmta, sizeof(fmta), "%s\n", fmt);
+  
   va_list ap;
   if (debug_enabled) {
     va_start (ap, fmt);
-    g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, fmt, ap);
+    //g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, fmt, ap);
+    vfprintf (stderr, fmta, ap);
     va_end (ap);
   }
 }
