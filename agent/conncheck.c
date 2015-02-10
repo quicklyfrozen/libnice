@@ -1380,7 +1380,8 @@ static void priv_add_new_check_pair (NiceAgent *agent, guint stream_id, Componen
   pair->component_id = component->id;;
   pair->local = local;
   pair->remote = remote;
-  if (remote->type == NICE_CANDIDATE_TYPE_PEER_REFLEXIVE)
+  /* KL: for inbound TCP connection the interesting socket is associated with remote candidate */
+  if (remote->type == NICE_CANDIDATE_TYPE_PEER_REFLEXIVE || remote->transport == NICE_CANDIDATE_TRANSPORT_TCP_ACTIVE)
     pair->sockptr = (NiceSocket *) remote->sockptr;
   else
     pair->sockptr = (NiceSocket *) local->sockptr;
@@ -3288,6 +3289,10 @@ gboolean conn_check_handle_inbound_stun (NiceAgent *agent, Stream *stream,
       if (component->remote_candidates && remote_candidate == NULL) {
 	nice_debug ("Agent %p : No matching remote candidate for incoming check ->"
             "peer-reflexive candidate.", agent);
+
+            // KL: Don't discover candidates 
+            //return false;
+        
 	remote_candidate = discovery_learn_remote_peer_reflexive_candidate (
             agent, stream, component, priority, from, nicesock,
             local_candidate,
@@ -3296,7 +3301,8 @@ gboolean conn_check_handle_inbound_stun (NiceAgent *agent, Stream *stream,
           if (local_candidate &&
               local_candidate->transport == NICE_CANDIDATE_TRANSPORT_TCP_PASSIVE)
             priv_conn_check_add_for_candidate_pair_matched (agent,
-                stream->id, component, local_candidate, remote_candidate, NICE_CHECK_DISCOVERED);
+                stream->id, component, local_candidate, remote_candidate, NICE_CHECK_WAITING);
+             /* KL: changed from NICE_CHECK_DISCOVERED so priv_conn_check_initiate would get called */
           else
             conn_check_add_for_candidate (agent, stream->id, component, remote_candidate);
         }

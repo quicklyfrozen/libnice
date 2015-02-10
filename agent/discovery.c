@@ -901,7 +901,11 @@ NiceCandidate *discovery_learn_remote_peer_reflexive_candidate (
 {
   NiceCandidate *candidate;
 
+  /* KL: if it's going to be transport tcp active then make it type host */
+  if (local->transport != NICE_CANDIDATE_TRANSPORT_TCP_PASSIVE)
   candidate = nice_candidate_new (NICE_CANDIDATE_TYPE_PEER_REFLEXIVE);
+  else
+    candidate = nice_candidate_new (NICE_CANDIDATE_TYPE_HOST); 
 
   candidate->addr = *remote_address;
   candidate->base_addr = *remote_address;

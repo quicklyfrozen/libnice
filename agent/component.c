@@ -356,6 +356,8 @@ component_find_pair (Component *cmp, NiceAgent *agent, const gchar *lfoundation,
     NiceCandidate *candidate = i->data;
     if (strncmp (candidate->foundation, rfoundation, NICE_CANDIDATE_MAX_FOUNDATION) == 0) {
       result.remote = candidate;
+      /* KL: registered remote TCP candidate won't have port set so see if we can find a better match. */
+      if (nice_address_get_port(&candidate->addr) != 0)
       break;
     }
   }
