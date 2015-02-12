@@ -3291,9 +3291,6 @@ gboolean conn_check_handle_inbound_stun (NiceAgent *agent, Stream *stream,
 	nice_debug ("Agent %p : No matching remote candidate for incoming check ->"
             "peer-reflexive candidate.", agent);
 
-            // KL: Don't discover candidates 
-            //return false;
-        
 	remote_candidate = discovery_learn_remote_peer_reflexive_candidate (
             agent, stream, component, priority, from, nicesock,
             local_candidate,
