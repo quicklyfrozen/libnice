@@ -624,8 +624,9 @@ static gboolean priv_conn_keepalive_tick_unlocked (NiceAgent *agent)
 	CandidatePair *p = &component->selected_pair;
 
         /* Disable keepalive checks on TCP candidates */
-        if (p->local->transport != NICE_CANDIDATE_TRANSPORT_UDP)
-          continue;
+        /* KL: Chrome wants to see keepalives on TCP */
+        //if (p->local->transport != NICE_CANDIDATE_TRANSPORT_UDP)
+        //  continue;
 
         if (agent->compatibility == NICE_COMPATIBILITY_GOOGLE ||
             agent->keepalive_conncheck) {
