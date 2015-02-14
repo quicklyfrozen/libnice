@@ -67,7 +67,13 @@ static const GDebugKey keys[] = {
 static void
 stun_handler (const char *format, va_list ap)
 {
-  g_logv ("libnice-stun", G_LOG_LEVEL_DEBUG, format, ap);
+  // g_logv ("libnice-stun", G_LOG_LEVEL_DEBUG, format, ap);
+  char fmta[4096];
+  snprintf(fmta, sizeof(fmta), "%s\n", format);
+  
+  if (debug_enabled) {
+    vfprintf (stdout, fmta, ap);
+  }
 }
 
 void nice_debug_init (void)
@@ -135,7 +141,7 @@ void nice_debug (const char *fmt, ...)
   if (debug_enabled) {
     va_start (ap, fmt);
     //g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, fmt, ap);
-    vfprintf (stderr, fmta, ap);
+    vfprintf (stdout, fmta, ap);
     va_end (ap);
   }
 }
