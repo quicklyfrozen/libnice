@@ -1073,6 +1073,7 @@ void conn_check_remote_candidates_set(NiceAgent *agent)
           NiceCandidate *local_candidate = NULL;
           NiceCandidate *remote_candidate = NULL;
 
+          /* KL: (no change, but should we look for username match here too? */
           if (agent->compatibility == NICE_COMPATIBILITY_GOOGLE ||
               agent->compatibility == NICE_COMPATIBILITY_MSN ||
               agent->compatibility == NICE_COMPATIBILITY_OC2007) {
@@ -3164,7 +3165,9 @@ gboolean conn_check_handle_inbound_stun (NiceAgent *agent, Stream *stream,
     }
   }
 
-  if (agent->compatibility == NICE_COMPATIBILITY_GOOGLE ||
+  /* KL: always look for matching username - if we find one, seems reasonable to assume it's match,
+     otherwise we'll continue as before. */
+  if (true || agent->compatibility == NICE_COMPATIBILITY_GOOGLE ||
       agent->compatibility == NICE_COMPATIBILITY_MSN ||
       agent->compatibility == NICE_COMPATIBILITY_OC2007) {
     /* We need to find which local candidate was used */
