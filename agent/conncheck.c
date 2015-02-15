@@ -962,8 +962,10 @@ gboolean conn_check_schedule_next (NiceAgent *agent)
 
   /* step: also start the keepalive timer */
   if (agent->keepalive_timer_source == NULL) {
+    /* KL: Chrome sends at ~500ms (although I expect this interval will be increased in the near 
+       future (see webrtc issue 1161).  That seems too aggressive, but let's make our setting a bit closer */
     agent_timeout_add_with_context (agent, &agent->keepalive_timer_source,
-        "Connectivity keepalive timeout", NICE_AGENT_TIMER_TR_DEFAULT,
+        "Connectivity keepalive timeout", 2500 /*NICE_AGENT_TIMER_TR_DEFAULT*/,
         priv_conn_keepalive_tick, agent);
   }
 
@@ -3165,7 +3167,7 @@ gboolean conn_check_handle_inbound_stun (NiceAgent *agent, Stream *stream,
     }
   }
 
-  /* KL: always look for matching username - if we find one, seems reasonable to assume it's match,
+  /* KL: always look for matching username - if we find one, seems reasonable to assume it's a match,
      otherwise we'll continue as before. */
   if (true || agent->compatibility == NICE_COMPATIBILITY_GOOGLE ||
       agent->compatibility == NICE_COMPATIBILITY_MSN ||
