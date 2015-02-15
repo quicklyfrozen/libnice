@@ -3167,9 +3167,7 @@ gboolean conn_check_handle_inbound_stun (NiceAgent *agent, Stream *stream,
     }
   }
 
-  /* KL: always look for matching username - if we find one, seems reasonable to assume it's a match,
-     otherwise we'll continue as before. */
-  if (true || agent->compatibility == NICE_COMPATIBILITY_GOOGLE ||
+  if (agent->compatibility == NICE_COMPATIBILITY_GOOGLE ||
       agent->compatibility == NICE_COMPATIBILITY_MSN ||
       agent->compatibility == NICE_COMPATIBILITY_OC2007) {
     /* We need to find which local candidate was used */
@@ -3210,6 +3208,47 @@ gboolean conn_check_handle_inbound_stun (NiceAgent *agent, Stream *stream,
           remote_candidate2 = rcand;
           break;
         }
+      }
+    }
+  } 
+  
+  /* KL: see if we can find matching remote candidate based on username.
+     At least for Chrome we need to find the original remote candidate so we 
+     can copy the username/password when we create a discovered candidate later. */
+  if (local_candidate != NULL && remote_candidate == NULL) {
+    for (i = component->remote_candidates;
+         i != NULL && remote_candidate2 == NULL; i = i->next) {
+      gboolean inbound = TRUE;
+      NiceCandidate *rcand = i->data;
+
+      /* If we receive a response, then the username is local:remote */
+      if (agent->compatibility != NICE_COMPATIBILITY_MSN) {
+        if (stun_message_get_class (&req) == STUN_REQUEST ||
+            stun_message_get_class (&req) == STUN_INDICATION) {
+          inbound = TRUE;
+        } else {
+          inbound = FALSE;
+        }
+      }
+      
+      uname_len = priv_create_username (agent, stream,
+          component->id,  rcand, local_candidate,
+          uname, sizeof (uname), inbound);
+
+      stun_debug ("Comparing usernames of size %d and %d: %d",
+          username_len, uname_len, username && uname_len == username_len &&
+          memcmp (username, uname, uname_len) == 0);
+      stun_debug_bytes ("  First username: ", username,
+          username ? username_len : 0);
+      stun_debug_bytes ("  Second uname:   ", uname, uname_len);
+
+      /* check user name and tranport type */
+      if (username &&
+          uname_len == username_len &&
+          memcmp (uname, username, username_len) == 0 &&
+          conn_check_match_transport(rcand->transport) == local_candidate->transport) {
+        remote_candidate2 = rcand;
+        break;
       }
     }
   }
