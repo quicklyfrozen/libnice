@@ -3456,8 +3456,10 @@ agent_recv_message_unlocked (
     retval = nice_socket_recv_messages (nicesock, message, 1);
   }
 
+#ifdef DETAIL_LOG
   nice_debug ("%s: Received %d valid messages of length %" G_GSIZE_FORMAT
       " from base socket %p.", G_STRFUNC, retval, message->length, nicesock);
+#endif
 
   if (retval == 0) {
     retval = RECV_WOULD_BLOCK;  /* EWOULDBLOCK */
@@ -3475,6 +3477,7 @@ agent_recv_message_unlocked (
     goto done;
   }
 
+#ifdef DETAIL_LOG
   if (nice_debug_is_enabled ()) {
     gchar tmpbuf[INET6_ADDRSTRLEN];
     nice_address_to_string (message->from, tmpbuf);
@@ -3482,6 +3485,7 @@ agent_recv_message_unlocked (
         g_socket_get_fd (nicesock->fileno), tmpbuf,
         nice_address_get_port (message->from), message->length);
   }
+#endif
 
   for (item = component->turn_servers; item; item = g_list_next (item)) {
     TurnServer *turn = item->data;
@@ -4753,8 +4757,10 @@ component_io_cb (GSocket *gsocket, GIOCondition condition, gpointer user_data)
       retval = agent_recv_message_unlocked (agent, stream, component,
           socket_source->socket, &local_message);
 
+#ifdef DETAIL_LOG
       nice_debug ("%s: %p: received %d valid messages with %" G_GSSIZE_FORMAT
           " bytes", G_STRFUNC, agent, retval, local_message.length);
+#endif
 
       /* Don’t expect any valid messages to escape pseudo_tcp_socket_readable()
        * when in reliable mode. */
@@ -4783,8 +4789,10 @@ component_io_cb (GSocket *gsocket, GIOCondition condition, gpointer user_data)
       retval = agent_recv_message_unlocked (agent, stream, component,
           socket_source->socket, &local_message);
 
+#ifdef DETAIL_LOG
       nice_debug ("%s: %p: received %d valid messages with %" G_GSSIZE_FORMAT
            " bytes", G_STRFUNC, agent, retval, local_message.length);
+#endif
 
       if (retval == RECV_WOULD_BLOCK) {
         /* EWOULDBLOCK. */
@@ -4824,8 +4832,10 @@ component_io_cb (GSocket *gsocket, GIOCondition condition, gpointer user_data)
           socket_source->socket,
           &component->recv_messages[component->recv_messages_iter.message]);
 
+#ifdef DETAIL_LOG
       nice_debug ("%s: %p: received %d valid messages", G_STRFUNC, agent,
           retval);
+#endif
 
       if (retval == RECV_SUCCESS) {
         /* Successfully received a single message. */

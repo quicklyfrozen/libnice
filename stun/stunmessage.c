@@ -550,7 +550,9 @@ ssize_t stun_message_validate_buffer_length_fast (StunInputVector *buffers,
 
   if (buffers[0].buffer[0] >> 6)
   {
+#ifdef DETAIL_LOG      
     stun_debug ("STUN error: RTP or other non-protocol packet!");
+#endif
     return STUN_MESSAGE_BUFFER_INVALID; // RTP or other non-STUN packet
   }
 
